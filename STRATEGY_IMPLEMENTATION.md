@@ -1,12 +1,19 @@
-# BTC 倒金字塔自动交易策略 — 实施文档 (v11h-a / 2x→3x phased)
+# BTC 倒金字塔自动交易策略 — 实施文档 (v16 final / 长倒金字塔 + 牛市HODL + 减半逃顶 + 熊市做空)
 
 > **目的**: 把人工判断从执行环节剔除。所有买入/卖出决定来自机械规则。
 > 策略已通过两个完整 BTC 周期（2018-2021 + 2022-2025）的回测验证。
 >
-> **预期表现**:
-> - 上周期 backtest (2018-09 → 2022-06): $7k → ~$60-100k (8-14x)
-> - 当前周期 backtest (2022-09 → 2026-05): $7k → ~$15-25k (2-4x)
-> - 跨周期几何均值: 4-7x，**两个周期都不爆仓**
+> **演进说明**: 本文档从 v11h-a（牛市多次 trim）演进到 v16。关键修正见
+> 第 0.5 节"版本演进与已修复的错误"。**早期版本的高收益数字含 bug，已作废。**
+>
+> **诚实预期表现**（v16，从 cycle 底部入场，bug 修复后）:
+> - 纯多头倒金字塔（无 short）: 几何均值 **11.6x**
+> - + 谨慎 short (30% 现金/1.5x): 几何均值 **~13.5x**
+> - + 中等 short (50% 现金/2x): 几何均值 **~16x**
+> - 对照: 2x HODL 完美底 = 19x（需完美择时）, 3x HODL = 28x（需完美择时 + 扛 -83% 回撤）
+> - **倒金字塔的核心价值 = ±3 个月择时容错**，代价是放弃约 20% 上行
+> - 最大回撤约 **-76%**（PW 周期，COVID 闪崩造成）, **-40%**（W 周期）
+> - 加上执行摩擦（滑点/资金费 2-5x）后，**真实预期 ~10-14x**
 
 ---
 
@@ -16,117 +23,176 @@
 |---|---|
 | **不预测，只反应** | 不试图判断"顶在哪里"或"底在哪里"，只对价格触及结构性支撑/阻力做反应 |
 | **机械执行** | 所有决策由参数化规则触发；人工只能 (a) 修改参数 (b) 紧急停机 |
-| **杠杆从利润中长出** | 起始 2x（保护期），账户翻 50% 后升 3x（增厚期），逃顶后回 0x（保护利润） |
-| **时间锚定退出** | 周期顶用 BTC 减半日期 + 17-19 月作锚，比任何技术指标都可靠 |
+| **杠杆从利润中长出** | 起始 **1.5x**（保护期，扛得过 COVID-style 闪崩），账户翻 50% 后升 3x（增厚期），逃顶后回 0x |
+| **长用倒金字塔，空用前置** | **多头**先小后大（低价吃便宜筹码）；**空头**先大后小/平均（高价早做空）— 两者结构镜像相反 |
+| **时间锚定退出** | 周期顶用 BTC 减半日期 + 17-18 月作锚，比任何技术指标都可靠 |
 | **限价单优先** | 所有触发用挂单，永不用市价单（避免滑点和情绪化追单） |
+
+---
+
+## 0.5 版本演进与已修复的错误
+
+> 这一节记录关键教训，避免未来重蹈覆辙。
+
+| 版本 | 改动 | 结论 |
+|---|---|---|
+| v1-v8 | 各种 trim/杠杆/止损组合 | 多次 trim 在牛市是负 alpha；硬止损在波动牛市被反复洗 |
+| v9 | 分阶段杠杆无止损 | 1.5→3x phased 是跨周期生存的关键（2x 起步在 COVID 爆仓）|
+| v10 | 机械买底卖顶 | 失败：RSI/Mayer 信号假触发几十次，不能定位真顶/底 |
+| v11h | **halving 锚定逃顶** | 减半 +17-18 月 = 历史 3 次顶都准，是最可靠的退出信号 |
+| v13 | 加熊市做空 | **发现 bug 1**: short 平仓误把名义价值计入现金（应只计 PnL）|
+| v14 | 倒金字塔 + 牛市 HODL | 牛市不 trim 收益更高，但**至少需要 1 次 trim** 才能扛过闪崩 |
+| v15 | alpha 搜索 | 警告：trim 月份有"悬崖"（+11 月爆仓 / +12 月 20x）= 过拟合，勿追 |
+| **v16** | 两层对比 + 核对 | **发现 bug 2**: force exit 必须在 short 现金分配**之前**（顺序错导致 short 只分到零头）|
+
+**两个已修复的关键 bug**：
+1. **Short 平仓会计**: `S_cash += pnl`（只加盈亏），不是 `S_cash += 名义 + pnl`。修复前短仓收益被夸大 ~20 倍。
+2. **操作顺序**: 减半+18月那天，先 force exit 平多变现金，**再**分配现金给熊市做空。顺序反了会导致做空只拿到很少资金。
+
+**被否决的过拟合诱惑**（两个周期数字不相称 = 危险信号）：
+- trim @+12 月（单点 20x，+11月就爆仓）→ 拒绝
+- lifetime_w=52 周（PW 暴涨但靠少数老支撑）→ 拒绝
+- 5x 杠杆 / 全部峰值参数组合（4257x 几何均值）→ 拒绝
+- **只接受邻近参数平滑、两周期相称的改进**
 
 ---
 
 ## 1. 策略整体架构
 
-### 1.1 三阶段状态机
+### 1.1 五阶段状态机
 
 ```
-        ┌─────────────────────────────────┐
-        │  PHASE 1: 建仓期 (BUILD)         │
-        │  起始杠杆 2x                     │
-        │  触发: 价格触及 swing 支撑       │
-        │  动作: 倒金字塔 6 层 (按比例加大)│
-        └──────────────┬──────────────────┘
+        ┌─────────────────────────────────────────┐
+        │  PHASE 1: 建仓期 (BUILD)                 │
+        │  起始杠杆 1.5x (扛闪崩)                   │
+        │  触发: 价格触及 swing 支撑 ±3%           │
+        │  动作: 多头倒金字塔 5 层 (先小后大 1.5x) │
+        └──────────────┬──────────────────────────┘
                        │  account_equity >= INITIAL × 1.5
                        ▼
-        ┌─────────────────────────────────┐
-        │  PHASE 2: 增厚期 (BOOST)         │
-        │  杠杆升级到 3x                   │
-        │  触发: 同 PHASE 1                 │
-        │  动作: 继续倒金字塔但用更大 size │
-        └──────────────┬──────────────────┘
-                       │  下一次 BTC halving (~2028-04-15)
+        ┌─────────────────────────────────────────┐
+        │  PHASE 2: 增厚期 (BOOST)                 │
+        │  杠杆升级到 3x (利润已有缓冲)            │
+        │  触发: 同 PHASE 1 (继续 S/R 吃支撑)      │
+        │  关键: 牛市中段【不】做 trim — 全程 HODL │
+        └──────────────┬──────────────────────────┘
+                       │  到达 halving + 14 月
                        ▼
-        ┌─────────────────────────────────┐
-        │  PHASE 3: 时间退出期             │
-        │  halving + 12 月: trim 33% on R │
-        │  halving + 17 月: trim 60% on R │
-        │  halving + 19 月: FORCE EXIT     │
-        └──────────────┬──────────────────┘
-                       │  full exit complete
+        ┌─────────────────────────────────────────┐
+        │  PHASE 3: 逃顶期 (减半时间锚定)          │
+        │  halving + 14 月: 触及阻力 trim 20% (1次)│
+        │                   (唯一保命 trim, 增加现金)│
+        │  halving + 18 月: ★ FORCE EXIT 全平多头  │
+        │                   (先平多 → 现金到手)    │
+        └──────────────┬──────────────────────────┘
+                       │  多头全平, 现金到手
                        ▼
-        ┌─────────────────────────────────┐
-        │  PHASE 4: 冷却期 (WAIT)          │
-        │  hold cash, 不入场                │
-        │  持续: ~12 月                    │
-        └──────────────┬──────────────────┘
-                       │  next cycle bottom detected
+        ┌─────────────────────────────────────────┐
+        │  PHASE 4: 熊市做空期 (halving+18 → +30)  │
+        │  分配 30-50% 现金做空 (剩余 USDC staking) │
+        │  空头【前置/平均】3 层 (先大后小, flat)  │
+        │  Entry: 触及 swing 阻力; Cover: 触及支撑 │
+        │  止损: 距空头均价 +30% (V反弹保护)       │
+        └──────────────┬──────────────────────────┘
+                       │  halving + 30 月 (下个底临近)
                        ▼
-                  (back to PHASE 1)
+        ┌─────────────────────────────────────────┐
+        │  PHASE 5: 平空 + 重启                    │
+        │  平所有空单, 现金回归                    │
+        │  回到 PHASE 1 (新一轮, 用更大本金)       │
+        └─────────────────────────────────────────┘
 ```
 
-### 1.2 完整时间表（2026-2029 计划）
+### 1.2 完整时间表（2026-2029 计划，锚定 2028-04 减半）
 
 | 阶段 | 起止日期（估计）| 操作 | 杠杆 |
 |---|---|---|---|
-| PHASE 1 | 2026-09 ~ 2027-06 | S/R 触发买入，倒金字塔 | **2x** |
-| PHASE 2 | 2027-06 ~ 2029-04 | 继续 S/R 买入 + 资金费成本 | **3x** |
-| PHASE 3a | 2029-04 ~ 2029-09 | trim 33% on each resistance | 3x ↓ |
-| PHASE 3b | 2029-09 ~ 2029-11 | trim 60% on each resistance | 3x ↓↓ |
-| PHASE 3c | 2029-11-15 | **FORCE EXIT 全平** | 0x |
-| PHASE 4 | 2029-11 ~ 2030-09 | 持现金等下个底 | 0x |
+| PHASE 1 | 2026-09 ~ 2027-中 | 多头倒金字塔吃底 (S/R 触发) | **1.5x** |
+| PHASE 2 | 2027-中 ~ 2029-04 | 浮盈翻倍升 3x，继续吃支撑，**不 trim** | **3x** |
+| PHASE 3a | 2029-06 (halving+14月) | 触及阻力 trim 20%（唯一保命 trim）| 3x ↓ |
+| PHASE 3b | 2029-10 (halving+18月) | **★ FORCE EXIT 全平多头** | → 0x |
+| PHASE 4 | 2029-10 ~ 2030-10 | 30-50% 现金做空熊市（前置 3 层）| 空 1.5-2x |
+| PHASE 5 | 2030-10 之后 | 平空，重启 PHASE 1 | — |
+
+> **注**: 2028-04-15 是下次减半。历史 3 次顶都在减半 +17.3~18.0 月，故 force exit 设
+> 在 +18 月。2026-09 见底假设对应减半前约 19 个月，与历史"底在减半前 17-19 月"一致。
 
 ---
 
 ## 2. 参数配置文件
 
 ```yaml
-# strategy_config.yaml
+# strategy_config.yaml  (v16 final)
 account:
   initial_usd: 7000.0           # 起始本金 USD
   exchange: "OKX"
   symbol: "BTC-USDT-SWAP"        # USDT 保证金永续
 
-leverage:
-  phase1: 2.0                    # 建仓期杠杆
+leverage:                       # 多头分阶段杠杆 (从利润中长出)
+  phase1: 1.5                    # 建仓期杠杆 (扛得过 COVID-style 闪崩; 2x 会爆)
   phase2: 3.0                    # 增厚期杠杆
-  upgrade_trigger: 1.5           # equity / initial >= 1.5 时升级 (Phase 1 → 2)
+  upgrade_trigger: 1.5           # equity / initial >= 1.5 时 phase1 → phase2
+  # 注: 2x 起步在 PW(2018-19) 的 -55% 下跌中爆仓; 1.5x 是生存下限
 
-entry_pyramid:
-  num_layers: 5                  # 倒金字塔层数 (5-6 都可)
-  layer_growth: 1.5              # 每层比上一层大 50% (geometric)
-  # layer_pcts will be auto-computed from above:
-  # L1 = 1/(1+1.5+2.25+3.375+5.0625) = 7.6% of total target notional
-  # L2 = 11.4%, L3 = 17.0%, L4 = 25.6%, L5 = 38.4%
+entry_pyramid_long:             # 多头倒金字塔 (先小后大)
+  num_layers: 5
+  layer_growth: 1.5              # 每层比上层大 50% (geometric)
+  # L1=7.6%  L2=11.4%  L3=17.0%  L4=25.6%  L5=38.4%  (大仓位落在低价 = 便宜)
 
 signal_sr:                      # support / resistance detection
-  source: "weekly_swings"        # 用周线 swing 高低点
-  swing_window: 2                # ±2 周确认（即第 i 根周线 = 前后 4 周内最低/高）
+  source: "weekly_swings"        # 周线 swing 高低点
+  swing_window: 2                # ±2 周确认 (第 i 根周线 = 前后 4 周内最低/高)
   tolerance: 0.03                # 价格在 S/R ±3% 范围内触发
-  cooldown_days: 7               # 同一 S/R 级别 7 天内不重复触发
-  level_lifetime_weeks: 26       # S/R 级别有效期 26 周（半年），过期失效
+  cooldown_days: 3               # 同一 S/R 级别 3 天内不重复触发 (auto, 无操作成本)
+  level_lifetime_weeks: 26       # S/R 级别有效期 26 周, 过期失效
 
-trim_logic:
-  base_trim_pct: 20              # 默认每次 trim 卖 20% of position
-  mid_phase_start_months: 12     # halving+12月起，提升到 33%
-  mid_phase_trim_pct: 33
-  aggr_phase_start_months: 17    # halving+17月起，提升到 60%
-  aggr_phase_trim_pct: 60
-  force_exit_months: 19          # halving+19月，全平
-  blackout_end_months: 24        # halving+19-24月，不入场新仓
+trim_logic:                     # 牛市【不】做多次 trim — 只保留 1 次保命 trim
+  trim_during_bull: false        # ★ 关键: 牛市中段不 trim (回测: 不trim收益高得多)
+  pre_exit_trim_month: 14        # 唯一的 trim: halving + 14 月
+  pre_exit_trim_pct: 20          # 触及阻力时卖 20% (提供闪崩 cushion + 锁部分利润)
+  force_exit_months: 18          # ★ halving + 18 月全平多头 (历史顶在 +17.3~18.0月)
+  blackout_end_months: 24        # 多头不入场窗口 (halving +17 ~ +24)
+  # 警告: 完全不 trim (pre_exit_trim_pct=0) 在 PW 会爆仓; 至少留这 1 次
+
+short_logic:                    # 熊市做空 — 前置/平均, 不是倒金字塔!
+  enable: true
+  bear_window: [18, 30]          # halving +18 ~ +30 月 (force exit 后到下个底)
+  cash_pct: 0.30                 # 投入 30% 现金做空 (保守; 50% 中等; 70% 激进但危险)
+  leverage: 1.5                  # 空头杠杆 (1.5 保守 / 2.0 中等)
+  num_layers: 3                  # ★ 空头 3 层 (少于多头; 越少越好)
+  layer_growth: 1.0              # ★ 平均分配 (空头【不】用倒金字塔!)
+  #   原因: 熊市阻力依次下降, "后层更大" 会把大空单放在低价 = 差的做空点
+  stop_pct: 0.30                 # 距空头均价 +30% 强平 (V反弹保护)
+  # ★ 顺序: force exit (平多) 必须在分配空头现金之前!
 
 halving:
-  next_halving_date: "2028-04-15"   # 下次减半（估计）
+  next_halving_date: "2028-04-15"   # 下次减半 (估计)
   # 历史: 2012-11-28, 2016-07-09, 2020-05-11, 2024-04-20
 
 risk:
-  max_effective_leverage: 3.0    # 任何时刻不能超过 3x
-  hard_stop_pct: null            # 不用硬止损 (回测显示反而是负 alpha)
+  max_long_leverage: 3.0         # 多头任何时刻不超 3x
+  hard_stop_long: null           # 多头不用硬止损 (回测显示是负 alpha, 被反复洗)
   liquidation_buffer: 0.05       # 距离爆仓 5% 内强制减仓警报
   daily_loss_limit_pct: 30       # 单日亏损 30% 暂停所有买入 24h
 
 execution:
   order_type: "LIMIT"            # 全部用限价单
   slippage_tolerance_pct: 0.5    # 价格触发后, 0.5% 内挂单视为有效
-  max_active_orders: 3           # 同时挂单数量限制
-  funding_rate_assumed: 0.0001   # 资金费假设 0.01%/8h，超出时打日志告警
+  max_active_orders: 3
+  funding_rate_assumed: 0.0001   # 资金费假设 0.01%/8h
+  # 压力测试: 资金费 2x → 收益 -17%; 5x → -59%; 10x → -86%. 真实预期 2-5x baseline
 ```
+
+### 2.1 为什么多头用倒金字塔、空头用前置加权？
+
+| | 多头 (牛市底) | 空头 (熊市顶后) |
+|---|---|---|
+| 结构 | 倒金字塔 (先小后大, growth 1.5) | 前置/平均 (3 层, growth 1.0) |
+| 逻辑 | 价格越跌加越大 → 大仓位在低价 = **便宜筹码** | 高价早做空 → 别等跌下去再加大 |
+| 实测 geo | 5 层 1.5x 最优 | 3 层 flat 最优 (1.6% 优于 4 层 1.3x) |
+| 为何镜像 | 底部你想吃尽量低的价 | 熊市阻力依次下降, 后层落在低价 = 差的空点 |
+
+这也印证 Paul Wei 实战: 他在 2024-03 顶部附近就大量做空, 不是等跌下来才加。
 
 ---
 
@@ -211,74 +277,90 @@ def daily_decision_loop():
     position = okx_get_position("BTC-USDT-SWAP")
     avg_cost = position.avg_entry_price
     
-    # 4. 计算当前阶段
-    months_since_halving = (today - HALVING_DATE).days / 30.44
-    
+    # 4. 计算当前阶段 (用入场后的下一个 halving 作锚)
+    mh = months_since_last_halving(today)        # 距最近 halving 的月数
+    in_bear_window = (18 <= mh < 30)             # PHASE 4 熊市做空窗口
+
     # 5. RISK CHECKS（先做）
-    if check_liquidation_risk(position, today_close):
+    if check_liquidation_risk(long_position, short_position, today_close):
         send_alert("⚠️ 距离爆仓 < 5%, 紧急减仓")
-        emergency_reduce()
-        return
-    
+        emergency_reduce(); return
     if daily_loss_pct() > 30:
-        send_alert("⚠️ 单日亏损 > 30%, 暂停 24h")
-        return
-    
-    # 6. PHASE 3: TIME-BASED EXIT
-    if months_since_halving >= 19 and position.size > 0:
-        execute_force_exit(reason="halving+19mo")
-        log_event("FORCE_EXIT", price=today_close, position=position)
-        return
-    
-    # 7. 计算当前 trim_pct
-    if months_since_halving >= 17:
-        trim_pct = 60
-    elif months_since_halving >= 12:
-        trim_pct = 33
-    else:
-        trim_pct = 20
-    
-    # 8. TRIM CHECK (resistance touch)
-    if position.size > 0 and today_close > avg_cost:
+        send_alert("⚠️ 单日亏损 > 30%, 暂停 24h"); return
+
+    # ============ 多头 (LONG BOOK) ============
+    # 6. ★ FORCE EXIT (halving + 18 月) — 必须在分配空头现金之前!
+    if mh >= 18 and not force_exit_done_this_halving() and long_position.size > 0:
+        execute_force_exit_long(reason="halving+18mo")   # 平多 → 现金到手
+        mark_force_exit_done(current_halving())
+        log_event("FORCE_EXIT_LONG", price=today_close)
+        # 不 return — 同一天可以继续走 PHASE 4 分配空头
+
+    # 7. ★ 牛市【不】做 trim. 只在 halving+14 月做唯一一次 20% 保命 trim
+    if (long_position.size > 0 and today_close > long_avg_cost
+        and mh >= 14 and not pre_exit_trim_done_this_halving()):
         for lvl in active_resists:
-            if abs(today_close - lvl) / lvl <= 0.03:  # tolerance 3%
-                if not has_fired_recently(lvl, "resistance", days=7):
-                    sell_size = position.size * (trim_pct / 100)
-                    place_limit_sell(price=lvl, size=sell_size)
-                    mark_fired(lvl, "resistance", today)
-                    log_event("TRIM", level=lvl, pct=trim_pct, size=sell_size)
-                    return  # one action per day
-    
-    # 9. BUY CHECK
-    in_blackout = (17 <= months_since_halving < 24)  # no new buys near top
-    if in_blackout:
-        return
-    
-    current_max_lev = 3.0 if (equity / INITIAL_USD) >= 1.5 else 2.0
-    layer_count = count_layers_filled_this_cycle()
-    
-    if layer_count >= MAX_LAYERS:
-        return  # all layers filled
-    
-    for lvl in active_supports:
-        if abs(today_close - lvl) / lvl <= 0.03:
-            if not has_fired_recently(lvl, "support", days=7):
-                geo_sum = sum(1.5**k for k in range(MAX_LAYERS))  # = 13.19
-                if layer_count == 0:
-                    layer_size_usd = equity * current_max_lev / geo_sum
-                    save_l1_size(layer_size_usd)
-                else:
-                    layer_size_usd = get_saved_l1_size() * (1.5 ** layer_count)
-                
-                # 限制总仓位不超过最大杠杆
-                max_extra = max(0, current_max_lev * equity - position.notional)
-                layer_size_usd = min(layer_size_usd, max_extra)
-                
-                if layer_size_usd > 50:  # min order size
-                    place_limit_buy(price=lvl, size_usd=layer_size_usd)
-                    mark_fired(lvl, "support", today)
-                    log_event("BUY", layer=layer_count+1, level=lvl, size_usd=layer_size_usd)
+            if abs(today_close - lvl)/lvl <= 0.03:
+                place_limit_sell(price=lvl, size=long_position.size * 0.20)
+                mark_pre_exit_trim_done(current_halving())
+                log_event("PRE_EXIT_TRIM", level=lvl, pct=20)
                 return
+
+    # 8. LONG BUY (倒金字塔, 先小后大). 临近顶部不买
+    in_long_blackout = (17 <= mh < 30)
+    if not in_long_blackout and long_position.size_ok_to_add():
+        current_max_lev = 3.0 if (total_equity / INITIAL_USD) >= 1.5 else 1.5
+        layer = count_long_layers_this_cycle()
+        if layer < 5:
+            for lvl in active_supports:
+                if abs(today_close - lvl)/lvl <= 0.03 and not fired_recently(lvl,"sup",3):
+                    geo_sum = sum(1.5**k for k in range(5))   # = 13.19
+                    if layer == 0:
+                        l1 = total_equity * current_max_lev / geo_sum; save_l1(l1); size = l1
+                    else:
+                        size = get_l1() * (1.5 ** layer)        # 先小后大
+                    size = min(size, max(0, current_max_lev*total_equity - long_notional()))
+                    if size > 50:
+                        place_limit_buy(price=lvl, size_usd=size)
+                        mark_fired(lvl,"sup",today); log_event("LONG_BUY", layer=layer+1, size=size)
+                    return
+
+    # ============ 空头 (SHORT BOOK), 仅 PHASE 4 ============
+    # 9. 进入熊市窗口时分配现金 (force exit 之后, 所以现金充足)
+    if in_bear_window and not short_book_active():
+        allocate_to_short(pct=0.30)               # 30% 现金; 其余 USDC staking
+        # 注意: 此时 force exit (步骤 6) 已把多头变现金, 分配的是真实权益
+
+    # 10. SHORT ENTRY (前置/平均, 3 层 flat — 不是倒金字塔!)
+    if short_book_active() and short_layer() < 3:
+        for lvl in active_resists:
+            if abs(today_close - lvl)/lvl <= 0.03 and today_close <= lvl*1.03 \
+               and not fired_recently(lvl,"res_short",3):
+                geo_sum = sum(1.0**k for k in range(3))   # = 3 (flat)
+                if short_layer() == 0:
+                    s1 = short_cash * 1.5 / geo_sum; save_s1(s1); size = s1   # 空头杠杆 1.5x
+                else:
+                    size = get_s1() * (1.0 ** short_layer())   # flat: 各层相等
+                size = min(size, max(0, 1.5*short_cash - short_notional()))
+                if size > 50:
+                    place_limit_short(price=lvl, size_usd=size)
+                    mark_fired(lvl,"res_short",today); log_event("SHORT_ENTRY", size=size)
+                return
+
+    # 11. SHORT COVER (触及支撑, 每次平 1/3) + 硬止损 +30%
+    if short_book_active() and short_position.size > 0:
+        if (today_high - short_avg_cost)/short_avg_cost >= 0.30:   # V反弹止损
+            cover_all_short(reason="stop +30%"); return
+        if today_close < short_avg_cost:
+            for lvl in active_supports:
+                if abs(today_close - lvl)/lvl <= 0.03 and not fired_recently(lvl,"sup_short",3):
+                    place_limit_cover(price=lvl, size=short_position.size * 0.33)
+                    mark_fired(lvl,"sup_short",today); log_event("SHORT_COVER", pct=33)
+                    return
+
+    # 12. PHASE 5: 熊市窗口结束 (halving+30月), 平所有空, 现金回归
+    if mh >= 30 and short_book_active():
+        cover_all_short(reason="cycle reset"); return_short_cash_to_main()
 ```
 
 ---
@@ -416,7 +498,9 @@ def daily_data_refresh():
 | ⚠️ 距爆仓 < 5% | 实时价格越线 | Telegram + SMS |
 | ⚠️ 单日亏损 > 30% | 实时 | Telegram + SMS |
 | ⚠️ 资金费率异常 | > 0.05%/8h 持续 24h | Telegram |
-| 🛑 FORCE EXIT 触发 | halving+19mo | Telegram |
+| 🛑 FORCE EXIT 触发 | halving+18mo (多头全平) | Telegram |
+| 🔻 熊市做空激活 | halving+18mo (分配 30% 现金) | Telegram |
+| 🔺 熊市平空重启 | halving+30mo | Telegram |
 | ❌ API 错误 | 任何 4xx/5xx | Telegram |
 | ❌ 订单卡住 | 限价单 > 7 天未成交 | Telegram |
 
@@ -602,14 +686,15 @@ OKX 实现:
 - [ ] 每月查一次告警没漏
 - [ ] 2028-04-15 halving 那天确认参数无误
 
-### Phase 4: 退出 (2029-09 ~ 2029-11)
+### Phase 4: 逃顶 + 转空 (2029-06 ~ 2030-10)
 
-- [ ] halving+12 月: 首次 trim 应触发
-- [ ] halving+17 月: 激进 trim 开始
-- [ ] halving+19 月: **FORCE EXIT 应该自动触发**
-- [ ] 验证全部仓位归零，cash 收回
+- [ ] halving+14 月: 唯一一次保命 trim 20% 应触发
+- [ ] halving+18 月: **FORCE EXIT 多头全平应自动触发** (先平多变现金)
+- [ ] force exit 后: 自动分配 30% 现金做空 (前置 3 层 flat)
+- [ ] 熊市期间: 空头触阻力进/触支撑平, +30% 硬止损
+- [ ] halving+30 月: 平所有空, 现金回归, 准备重启
 
-### Phase 5: 冷却 (2029-11 ~ 2030-09)
+### Phase 5: 冷却 / 重启 (2030-10 之后)
 
 - [ ] 检查现金管理（要不要 USDC stake 拿 5-8% 年化）
 - [ ] 准备下个周期参数（更新 next_halving_date 到 2032-04）
@@ -801,13 +886,16 @@ Halving 当天 review = **风险微调**，不是退出。
 ## 15. FAQ
 
 **Q: 如果 2026-09 不是真的底，BTC 继续跌到 $40k 怎么办？**  
-A: 倒金字塔机制本身就是为这个设计的。L1-L5 跨 20% 价格区间，所以你不用押在一个点上。即便 L5 之后还跌，2x 杠杆下你能扛到 -50% 距 avg cost 才接近爆仓。
+A: 倒金字塔机制本身就是为这个设计的。L1-L5 跨约 20% 价格区间，所以你不用押在一个点上。这正是它相对"单点 3x HODL"的核心价值（±3 月择时容错）。**起步 1.5x**（不是 2x）让你在 L5 之后继续跌也扛得住——回测中 2x 起步在 2018-19 的 -55% 下跌里爆仓，1.5x 活下来。
 
-**Q: 如果 halving 后周期延长了，2029-11 还在涨怎么办？**  
-A: 你已经在 +17 月开始大量 trim，到 +19 月 force exit 时大概只剩 10-20% 仓位。即使继续涨，你也基本兑现了大头。**机械策略接受错过最后一段涨幅**是它的常态。
+**Q: 如果 halving 后周期延长了，2029-10 还在涨怎么办？**  
+A: 你在 +14 月已经 trim 20% 锁了部分利润，+18 月 force exit 全平。即使之后继续涨，**机械策略接受错过最后一段涨幅**是它的常态——历史 3 次顶都在 +17.3~18.0 月，赌延长是负期望。
 
 **Q: 如果 2027 突然黑天鹅 BTC -50% 一天怎么办？**  
-A: 2x 杠杆下，单日 -50% = equity -100% = 爆仓。这是 2x 起步的真实风险。如果担心，用方案 A（1x 起步）。
+A: 这是 PHASE 1（1.5x）期间最危险的尾部风险。1.5x 下单日 -50% = equity -75%，痛但**不爆仓**（这正是不用 2x 起步的原因）。倒金字塔的低 avg cost 进一步提供缓冲。如果极度保守，用第 10 节方案 A（1x 现货起步）。
+
+**Q: 熊市做空会不会被 V 反弹打爆？**  
+A: 这是 PHASE 4 的真实尾部风险，**回测没覆盖**（2018/2022 都是干净单边熊市，short stop 从未触发）。防护：(1) 只投 30% 现金做空，(2) 空头杠杆仅 1.5x，(3) +30% 硬止损。如果熊市出现 V 形反转，最坏损失约 30% × 30% 现金 = 总权益 -9%。**别把全部身家压在熊市干净下跌上**——这是 70%/2.5x 激进配置被否决的原因。
 
 **Q: 资金费突然飙升怎么办？**  
 A: 监控告警 + 减仓 50%（risk 配置里设定的）。极端情况手动 PAUSE。
