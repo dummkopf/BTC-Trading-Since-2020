@@ -815,9 +815,9 @@ v11h-a 在 2024-04 halving 时的实际状态（backtest 数据）：
 
 ### 12.5.6 重要：这不是"逃顶"
 
-这次 review 跟 halving+19 月的 force exit 是**完全不同性质的动作**：
+这次 review 跟 halving+18 月的 force exit 是**完全不同性质的动作**：
 
-| | Halving 当天 review | Halving +19 月 force exit |
+| | Halving 当天 review | Halving +18 月 force exit |
 |---|---|---|
 | 目的 | 防 post-halving 回调爆仓 | 周期顶完整逃离 |
 | 动作 | 视 cushion trim 15-50% | 强制全平 |
@@ -869,7 +869,7 @@ Halving 当天 review = **风险微调**，不是退出。
 | 顶部 / blowoff | 0.10-0.30% (你付 10-30%/月) ⚠️ |
 | 熊市 | -0.02 ~ 0.01% (你可能收钱) |
 
-→ 在 PHASE 3a/3b（halving+12-19 月）期间，资金费可能很贵。这也是 force exit 在 +19 月有效的理由之一: 不让你长期在高费率多仓里出血。
+→ 在 PHASE 3（halving+14-18 月）期间，资金费可能很贵。这也是 force exit 在 +18 月有效的理由之一: 不让你长期在高费率多仓里出血。
 
 ### 14.3 历史顶部资金费率
 
