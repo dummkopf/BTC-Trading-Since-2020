@@ -1,28 +1,28 @@
 BEGIN:VCALENDAR
 VERSION:2.0
-PRODID:-//BTC 3x Cycle Strategy//Playbook//EN
+PRODID:-//BTC 3x Cycle Strategy//Playbook v2//EN
 CALSCALE:GREGORIAN
 METHOD:PUBLISH
 X-WR-CALNAME:BTC 3x 周期策略
 X-WR-TIMEZONE:Asia/Shanghai
-X-WR-CALDESC:核心策略关键日期 — 见底入场 / 减半锚 / 逃顶三批
+X-WR-CALDESC:核心策略关键日期 v2 — 含 dip 子窗口 + 下个动作提示
 BEGIN:VEVENT
-UID:btc-strategy-2026-08-01@playbook
+UID:btc-strategy-2026-08-01-v2@playbook
 DTSTAMP:20260531T000000Z
 DTSTART;VALUE=DATE:20260801
 DTEND;VALUE=DATE:20260802
-SUMMARY:🟡 进入"见底观察期" — 准备 $7000 + OKX 账户
-DESCRIPTION:开始盯盘 BTC 是否见底。\n准备工作:\n- OKX 账户充值 $7000\n- 杠杆滑块预设 3x\n- 等价格从低点反弹 5-10% 再入场 (别接飞刀)
+SUMMARY:🟡 见底观察期开始 — 准备 $7000 + OKX
+DESCRIPTION:【现在做什么】\n- OKX 充值 $7000, 杠杆滑块预设 3x\n- 等价格从最近低点反弹 5-10% 再入场 (别接飞刀)\n- 可分 2-3 次买入, 都在底部附近不影响安全边际\n\n【下一个关键日】2026-09-30 见底窗口末. 若已反弹则全部入场.
 CATEGORIES:BTC,准备
 BEGIN:VALARM
 TRIGGER:-P30D
 ACTION:DISPLAY
-DESCRIPTION:1 个月后进入 BTC 见底观察期
+DESCRIPTION:1 个月后 BTC 见底观察期开始
 END:VALARM
 BEGIN:VALARM
 TRIGGER:-P7D
 ACTION:DISPLAY
-DESCRIPTION:1 周后进入 BTC 见底观察期
+DESCRIPTION:1 周后开始盯 BTC 见底
 END:VALARM
 BEGIN:VALARM
 TRIGGER:PT9H
@@ -31,50 +31,88 @@ DESCRIPTION:今天起开始盯 BTC 见底信号
 END:VALARM
 END:VEVENT
 BEGIN:VEVENT
-UID:btc-strategy-2026-09-30@playbook
+UID:btc-strategy-2026-09-30-v2@playbook
 DTSTAMP:20260531T000000Z
 DTSTART;VALUE=DATE:20260930
 DTEND;VALUE=DATE:20261001
-SUMMARY:🟢 见底窗口末 — 若已反弹 5-10% 则 3x 满仓做多
-DESCRIPTION:触发条件:\n- 价格从最近低点反弹 5-10% 确认\n- OKX 杠杆 3x\n- 全部 $7000 保证金开多 (可分 2-3 次)\n\n红线: 只在底部区域开 3x. 远高于底则降杠杆.
+SUMMARY:🟢 见底窗口末 — 反弹 5-10% 则 3x 满仓做多
+DESCRIPTION:【现在做什么】\n- 若已见底反弹 5-10%: OKX 3x, $7000 全仓做多\n- 红线: 只在底部区域 3x. 远高于底就降杠杆\n\n【下一个关键日】2028-04-15 减半. 接下来 ~17 个月只是死扛, 接受 -50~-80% 浮亏.
 CATEGORIES:BTC,入场
 BEGIN:VALARM
 TRIGGER:-P14D
 ACTION:DISPLAY
-DESCRIPTION:见底窗口将结束 — 2 周内决定是否入场
+DESCRIPTION:2 周后入场决策日
 END:VALARM
 BEGIN:VALARM
 TRIGGER:PT9H
 ACTION:DISPLAY
-DESCRIPTION:决策日: 若已见底反弹则 3x 满仓
+DESCRIPTION:今天: 若已见底反弹则 3x 满仓
 END:VALARM
 END:VEVENT
 BEGIN:VEVENT
-UID:btc-strategy-2028-04-15@playbook
+UID:btc-strategy-2028-04-15-v2@playbook
 DTSTAMP:20260531T000000Z
 DTSTART;VALUE=DATE:20280415
 DTEND;VALUE=DATE:20280416
-SUMMARY:⚓ BTC 第 4 次减半 — 逃顶倒计时启动
-DESCRIPTION:不操作. 仅作为锚点:\n顶 = 减半 + 17.3~18.0 月\n→ 逃顶窗口 2029-08-15 ~ 2029-09-15
+SUMMARY:⚓ BTC 减半 — 启动 dip-watch + 逃顶倒计时
+DESCRIPTION:【今天的意义】\n两个倒计时同时启动:\n1. Dip-watch 窗口开启 (减半 → 减半+14 月)\n   历史 3/3 周期都有 ≥20% 回撤可吃\n2. 逃顶倒计时 (减半+17 月 = 2029-09-15 清仓)\n\n【现在做什么】\n- 核心仓不动. 继续死扛.\n- 若有"额外的钱" (核心 $7000 之外), 可开始关注 ≥20% 回撤机会\n- Dip-buy 红线: ≤1.5x 杠杆, 独立资金, 跌 20% 买入, 恢复峰值卖出\n\n【下一个关键日】2028-09-15 dip 中段窗口 (恢复最快段). 2029-02-15 高发窗口.
 CATEGORIES:BTC,锚点
 BEGIN:VALARM
-TRIGGER:-P7D
+TRIGGER:-P14D
 ACTION:DISPLAY
-DESCRIPTION:1 周后 BTC 减半 — 逃顶倒计时开始 (~17 月后)
+DESCRIPTION:2 周后 BTC 减半 — 准备启动 dip-watch
 END:VALARM
 BEGIN:VALARM
 TRIGGER:PT9H
 ACTION:DISPLAY
-DESCRIPTION:BTC 减半日. 距逃顶约 17 月.
+DESCRIPTION:BTC 减半日. Dip-watch 启动. 距清仓约 17 月.
 END:VALARM
 END:VEVENT
 BEGIN:VEVENT
-UID:btc-strategy-2029-06-01@playbook
+UID:btc-strategy-2028-09-15-v2@playbook
+DTSTAMP:20260531T000000Z
+DTSTART;VALUE=DATE:20280915
+DTEND;VALUE=DATE:20280915
+SUMMARY:💧 Dip 中段窗口开启 (减半+5月) — 恢复最快段
+DESCRIPTION:【今天的意义】\n减半+5~+10 月. 历史 2/3 周期有回撤. 特点: 恢复最快 (中位数 22 天).\n\n【dip-buy 操作模板】\n- 触发: 价格从局部峰值跌 ≥20% (收盘价)\n- 买入: 独立资金, ≤1.5x 杠杆\n- 卖出: 价格回到回撤前峰值 (一般 11-43 天)\n- 核心仓全程不动\n\n【下一个关键日】2029-02-15 高发窗口 (3/3 命中, 但恢复变慢).
+CATEGORIES:BTC,可选,dip-buy
+BEGIN:VALARM
+TRIGGER:-P7D
+ACTION:DISPLAY
+DESCRIPTION:1 周后 dip 中段窗口开启
+END:VALARM
+BEGIN:VALARM
+TRIGGER:PT9H
+ACTION:DISPLAY
+DESCRIPTION:Dip 中段窗口开启 — 恢复最快 ~22 天
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:btc-strategy-2029-02-15-v2@playbook
+DTSTAMP:20260531T000000Z
+DTSTART;VALUE=DATE:20290215
+DTEND;VALUE=DATE:20290215
+SUMMARY:💧💧 Dip 高发窗口开启 (减半+10月) — 3/3 命中
+DESCRIPTION:【今天的意义】\n减半+10~+14 月. 历史 3/3 周期都有回撤, 跌幅最深 (-28% ~ -53%).\n这是末段牛市加速 + 剧烈震荡阶段.\n\n【现在做什么】\n- Dip-buy 机会最多. 但恢复变慢 (中位数 34 天, 极端 91 天)\n- 仍然: ≤1.5x, 独立资金, 跌 20% 买, 恢复峰值卖\n- 警惕: 若某次"回撤"恢复不了 → 可能就是顶部信号\n\n【下一个关键日】2029-06-01 dip-buy 截止. 之后不再吃回撤.
+CATEGORIES:BTC,可选,dip-buy
+BEGIN:VALARM
+TRIGGER:-P14D
+ACTION:DISPLAY
+DESCRIPTION:2 周后 dip 高发窗口开启 (3/3 命中)
+END:VALARM
+BEGIN:VALARM
+TRIGGER:PT9H
+ACTION:DISPLAY
+DESCRIPTION:Dip 高发窗口开启 — 最深回撤集中在这 4 月内
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:btc-strategy-2029-06-01-v2@playbook
 DTSTAMP:20260531T000000Z
 DTSTART;VALUE=DATE:20290601
 DTEND;VALUE=DATE:20290602
-SUMMARY:⛔ 停止吃回撤 sleeve (dip-buy 截止)
-DESCRIPTION:减半+14 月. 之后:\n- 停止所有 dip-buy 操作\n- 因为接下来的"回撤"可能是熊市开始, 回不来\n- 核心仓继续死扛
+SUMMARY:⛔ Dip-buy 截止 (减半+14月) — 之后不再吃回撤
+DESCRIPTION:【今天的意义】\n减半+14 月. 临近顶部. 之后的"回撤"可能就是熊市开始, 回不来.\n\n【现在做什么】\n- 平掉所有 dip-buy sleeve 仓位\n- 核心仓继续死扛 (绝对不动)\n- 进入"逃顶倒计时" 2.5 月\n\n【下一个关键日】2029-08-15 逃顶第 1 批 (-2.5 月).
 CATEGORIES:BTC,可选
 BEGIN:VALARM
 TRIGGER:-P14D
@@ -84,21 +122,21 @@ END:VALARM
 BEGIN:VALARM
 TRIGGER:PT9H
 ACTION:DISPLAY
-DESCRIPTION:今天起停止 dip-buy sleeve
+DESCRIPTION:今天: 关闭所有 dip-buy 仓位
 END:VALARM
 END:VEVENT
 BEGIN:VEVENT
-UID:btc-strategy-2029-08-15@playbook
+UID:btc-strategy-2029-08-15-v2@playbook
 DTSTAMP:20260531T000000Z
 DTSTART;VALUE=DATE:20290815
 DTEND;VALUE=DATE:20290816
 SUMMARY:🔴 逃顶第 1 批 — 平 1/3 仓位
-DESCRIPTION:减半+16 月. 保守, 早于任何历史顶.\n\n动作: 平 1/3 多单. 不靠判断, 到日子就走.
+DESCRIPTION:【今天的意义】\n减半+16 月. 保守, 早于任何历史顶.\n\n【现在做什么】\n- 平 1/3 多单. 市价单, 别犹豫.\n- 不靠判断顶, 到日子就走\n\n【下一个关键日】2029-09-02 第 2 批 (主要逃顶日).
 CATEGORIES:BTC,逃顶
 BEGIN:VALARM
 TRIGGER:-P14D
 ACTION:DISPLAY
-DESCRIPTION:2 周后逃顶第 1 批 (平 1/3)
+DESCRIPTION:2 周后逃顶第 1 批
 END:VALARM
 BEGIN:VALARM
 TRIGGER:-P3D
@@ -112,17 +150,17 @@ DESCRIPTION:今天: 平 1/3 多单
 END:VALARM
 END:VEVENT
 BEGIN:VEVENT
-UID:btc-strategy-2029-09-02@playbook
+UID:btc-strategy-2029-09-02-v2@playbook
 DTSTAMP:20260531T000000Z
 DTSTART;VALUE=DATE:20290902
 DTEND;VALUE=DATE:20290903
 SUMMARY:🔴🔴 逃顶第 2 批 (主要逃顶日) — 平 1/3
-DESCRIPTION:减半+16.6 月. "顶前 1 月".\n\n动作: 平 1/3 多单. 这是核心逃顶日.\n宁早勿贪. 不靠判断顶, 到日子就走.
+DESCRIPTION:【今天的意义】\n减半+16.6 月. "顶前 1 月". 这是核心逃顶日.\n\n【现在做什么】\n- 平 1/3 多单. 宁早勿贪.\n- 顶后暴跌远凶于最后 1 月涨幅\n\n【下一个关键日】2029-09-15 最后一批清仓.
 CATEGORIES:BTC,逃顶
 BEGIN:VALARM
 TRIGGER:-P14D
 ACTION:DISPLAY
-DESCRIPTION:2 周后主要逃顶日 (平 1/3)
+DESCRIPTION:2 周后主要逃顶日
 END:VALARM
 BEGIN:VALARM
 TRIGGER:-P3D
@@ -136,12 +174,12 @@ DESCRIPTION:今天 (主要逃顶日): 平 1/3 多单
 END:VALARM
 END:VEVENT
 BEGIN:VEVENT
-UID:btc-strategy-2029-09-15@playbook
+UID:btc-strategy-2029-09-15-v2@playbook
 DTSTAMP:20260531T000000Z
 DTSTART;VALUE=DATE:20290915
 DTEND;VALUE=DATE:20290916
 SUMMARY:🔴🔴🔴 逃顶第 3 批 (最后一批) — 清仓
-DESCRIPTION:减半+17 月. 最后一批, 必须清完.\n\n动作: 平剩余全部多单.\n红线: 别等到 9 月下旬!
+DESCRIPTION:【今天的意义】\n减半+17 月. 必须清完.\n\n【现在做什么】\n- 平剩余全部多单\n- 红线: 别等到 9 月下旬 (2029-09-23 是历史最早顶)\n\n【下一个关键日】2029-09-23 红线检查. 之后(可选)反手 3x 空.
 CATEGORIES:BTC,逃顶
 BEGIN:VALARM
 TRIGGER:-P14D
@@ -160,36 +198,36 @@ DESCRIPTION:今天: 清仓所有多单!
 END:VALARM
 END:VEVENT
 BEGIN:VEVENT
-UID:btc-strategy-2029-09-23@playbook
+UID:btc-strategy-2029-09-23-v2@playbook
 DTSTAMP:20260531T000000Z
 DTSTART;VALUE=DATE:20290923
 DTEND;VALUE=DATE:20290924
 SUMMARY:⛔⛔ 红线日 — 必须已全部清仓
-DESCRIPTION:2029-09-23 是历史最早顶日 (2017 顶).\n过了这一天还有多单 = 极度危险.\n\n检查: 多单是否已 100% 清完?\n如未清, 立即市价平.
+DESCRIPTION:【今天的意义】\n2017 年顶日 = 历史最早顶. 过此日还有多单 = 极度危险.\n\n【现在做什么】\n- 检查: 多单是否已 100% 清完?\n- 若未清: 立即市价平\n- (可选) 反手 3x 做空, 持有到 2030 底\n\n【下一个关键日】2030-09 下轮见底观察期.
 CATEGORIES:BTC,红线
 BEGIN:VALARM
 TRIGGER:-P7D
 ACTION:DISPLAY
-DESCRIPTION:1 周后红线日 — 确保已清仓
+DESCRIPTION:1 周后红线日 — 必须已清仓
 END:VALARM
 BEGIN:VALARM
 TRIGGER:PT9H
 ACTION:AUDIO
-DESCRIPTION:红线日! 检查多单是否已 100% 清完
+DESCRIPTION:红线日! 多单必须 100% 清完
 END:VALARM
 END:VEVENT
 BEGIN:VEVENT
-UID:btc-strategy-2030-09-01@playbook
+UID:btc-strategy-2030-09-01-v2@playbook
 DTSTAMP:20260531T000000Z
 DTSTART;VALUE=DATE:20300901
 DTEND;VALUE=DATE:20301001
 SUMMARY:🔵 下轮见底观察期 (若做翻空)
-DESCRIPTION:若 2029-09 后翻 3x 空:\n- 现在约减半+30 月, 下个周期底临近\n- 准备平空\n- 进入下轮见底观察, 准备再次 3x 做多\n\n若未翻空: 仅作为下轮策略起点提醒.
+DESCRIPTION:【今天的意义】\n减半+~30 月. 下个周期底临近.\n\n【现在做什么】\n- 若 2029-09 翻了 3x 空: 准备平空\n- 进入下轮见底观察, 准备再 3x 满仓做多\n- 重启整个 PLAYBOOK 流程
 CATEGORIES:BTC,可选
 BEGIN:VALARM
 TRIGGER:-P14D
 ACTION:DISPLAY
-DESCRIPTION:2 周后进入下轮见底观察期
+DESCRIPTION:2 周后进入下轮见底观察
 END:VALARM
 BEGIN:VALARM
 TRIGGER:PT9H
