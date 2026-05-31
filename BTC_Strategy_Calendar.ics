@@ -54,18 +54,56 @@ UID:btc-strategy-2027-04-15-v3@playbook
 DTSTAMP:20260531T000000Z
 DTSTART;VALUE=DATE:20270415
 DTEND;VALUE=DATE:20270416
-SUMMARY:🔍 中期检查 — 是否出现 ETF 前置效应 (减半-1年)
-DESCRIPTION:【今天的意义】\n距 2028 减半还有 1 年. C3 的关键教训: ETF 把牛市能量前置到减半前.\n\n【检查清单】\n- BTC 当前价格 vs 2026 入场价? 若已 >5x → 前置效应明显\n- ETF 累计净流入趋势? 若加速 → 前置仍在\n- 链上 LTH 占比? 若已开始下降 → 分发提前\n\n【若前置明显 (>5x)】\n- 把整个 exit calendar 前移 3-6 月\n- 第 1 批从 2029-07-15 提前到 2029-04-15\n- 增加 "异常 +60% 单月涨幅则立即减仓" 触发器\n\n【若未前置 (<3x)】\n- 维持原 calendar, 按 C2 经典节奏执行\n\n【下一关键日】2028-04-15 减半 (启动 dip-watch + 逃顶倒计时).
+SUMMARY:🔍 早期检查 (减半-12月) — 前置效应初探
+DESCRIPTION:【今天的意义】\n距 2028 减半还有 1 年. 历史中位倍数: 1.7x. 即使 C3 (ETF 周期) 在此时也只有 1.7x → 这个日期检测前置的能力有限.\n\n【触发阈值: 当前 / 入场价】\n- 正常 (1.5-2.5x): 维持原 calendar\n- 早期前置信号 (>3x): 警惕, 后续 check 日加强观察\n- 极端前置 (>4x): exit calendar 整体前移 2-3 月\n\n【辅助观察】\n- ETF 累计净流入是否加速?\n- 链上 LTH 占比是否已下降?\n\n【下一关键日】2028-01-15 关键前置 check (减半-3月).
 CATEGORIES:BTC,检查点
 BEGIN:VALARM
 TRIGGER:-P7D
 ACTION:DISPLAY
-DESCRIPTION:1 周后做中期前置效应检查
+DESCRIPTION:1 周后做早期前置 check (减半-12月)
 END:VALARM
 BEGIN:VALARM
 TRIGGER:PT9H
 ACTION:DISPLAY
-DESCRIPTION:今天做中期检查 — 是否需要前移 exit calendar
+DESCRIPTION:今天: 早期前置 check (触发阈值 >3x)
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:btc-strategy-2028-01-15-v3@playbook
+DTSTAMP:20260531T000000Z
+DTSTART;VALUE=DATE:20280115
+DTEND;VALUE=DATE:20280116
+SUMMARY:🔍🔍 关键前置 check (减半-3月) — C3 实际触发点
+DESCRIPTION:【今天的意义】\n减半前 3 个月. 历史中位倍数: 2.6x. 这是 C3 实际开始显示 ETF 前置的时点 (2024-01 ETF 上市后).\n\n【触发阈值: 当前 / 入场价】\n- 正常 (2.4-3.1x): C4 走经典节奏, 维持原 calendar\n- 中度前置 (>4x): exit calendar 前移 3 月\n  → 第 1 批 2029-04-15, 第 2 批 2029-05-15, 第 3 批 2029-06-15\n- 极端前置 (>5x): 前移 6 月, 立即开始减仓 1/3\n\n【下一关键日】2028-03-15 确认 check (减半-1月).
+CATEGORIES:BTC,检查点
+BEGIN:VALARM
+TRIGGER:-P14D
+ACTION:DISPLAY
+DESCRIPTION:2 周后关键前置 check (减半-3月)
+END:VALARM
+BEGIN:VALARM
+TRIGGER:PT9H
+ACTION:DISPLAY
+DESCRIPTION:今天: 关键前置 check (触发阈值 >4x, C3 实际触发点)
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:btc-strategy-2028-03-15-v3@playbook
+DTSTAMP:20260531T000000Z
+DTSTART;VALUE=DATE:20280315
+DTEND;VALUE=DATE:20280316
+SUMMARY:🔍🔍🔍 确认 check (减半-1月) — 前置最终判定
+DESCRIPTION:【今天的意义】\n减半前 1 月. 历史中位倍数: 3.2x. C3 在此时已达 4.2x (明显前置).\n\n【触发阈值: 当前 / 入场价】\n- 正常 (<4x): 走经典节奏\n- 明显前置 (>5x): exit calendar 前移 4-6 月\n  → 第 1 批 2029-03-15, 第 2 批 2029-05-15, 第 3 批 2029-07-15\n- 极端前置 (>6x): 立即减仓 1/2, 剩余按前移日历执行\n\n【这是最后一次 calendar 调整机会】\n减半后操作进入执行期, 不再做大调整.\n\n【下一关键日】2028-04-15 减半 (启动 dip-watch + 逃顶倒计时).
+CATEGORIES:BTC,检查点
+BEGIN:VALARM
+TRIGGER:-P14D
+ACTION:DISPLAY
+DESCRIPTION:2 周后确认 check (减半-1月) — 最后调整机会
+END:VALARM
+BEGIN:VALARM
+TRIGGER:PT9H
+ACTION:DISPLAY
+DESCRIPTION:今天: 确认 check (触发阈值 >5x)
 END:VALARM
 END:VEVENT
 BEGIN:VEVENT
