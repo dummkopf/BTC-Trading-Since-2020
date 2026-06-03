@@ -11,8 +11,8 @@ UID:btc-strategy-2026-08-01-v3@playbook
 DTSTAMP:20260531T000000Z
 DTSTART;VALUE=DATE:20260801
 DTEND;VALUE=DATE:20260802
-SUMMARY:🟡 见底观察期开始 — 准备 $7000 + OKX
-DESCRIPTION:【现在做什么】\n- OKX 充值 $7000, 杠杆滑块预设 3x\n- 等价格从最近低点反弹 5-10% 再入场 (别接飞刀)\n- 可分 2-3 次买入\n\n【C4 预期】保守 2-5x 总回报 (非 8-20x). 周期可能"最温和" - 顶部更圆, 更难识别 → calendar exit 价值更高.\n\n【下一关键日】2026-09-30 见底窗口末.
+SUMMARY:🟡 见底观察期开始 — 准备 $7000 USDC + Hyperliquid
+DESCRIPTION:【现在做什么】\n- Hyperliquid 账户设置: 硬件钱包 (Ledger) + 桥 USDC 到 HL\n- 杠杆预设 3x, BTC-USD perp\n- 等价格从最近低点反弹 5-10% 再入场 (别接飞刀)\n- 可分 2-3 次买入\n\n【为何 HL 而非 CEX】自托管 + USDC + funding 低 (~5-8% vs OKX 10-11%, 3 年省 ~$2,500)\n\n【备用通道】开个空 OKX 账户应急 (不入金)\n\n【C4 预期】保守 2-5x 总回报. 顶部圆 + 前置 → calendar exit 价值更高.\n\n【下一关键日】2026-09-30 见底窗口末.
 CATEGORIES:BTC,准备
 BEGIN:VALARM
 TRIGGER:-P30D
@@ -36,7 +36,7 @@ DTSTAMP:20260531T000000Z
 DTSTART;VALUE=DATE:20260930
 DTEND;VALUE=DATE:20261001
 SUMMARY:🟢 见底窗口末 — 反弹 5-10% 则 3x 满仓做多
-DESCRIPTION:【现在做什么】\n- 若已反弹 5-10%: OKX 3x, $7000 全仓做多\n- 红线: 只在底部区域 3x\n\n【接下来】死扛 ~3 年, 接受 -50~-80% 浮亏. 不会爆仓.\n\n【下一关键日】2027-04-15 前置效应检查 (-1 年减半).
+DESCRIPTION:【现在做什么】\n- 若已反弹 5-10%: Hyperliquid 3x, $7000 USDC 全仓做多 BTC-USD perp\n- 硬件钱包签名\n- 红线: 只在底部区域 3x\n\n【接下来】死扛 ~3 年, 接受 -50~-80% 浮亏. 不会爆仓.\n每月检查 1 次 HL 健康度 (HLP / 桥 / funding).\n\n【下一关键日】2027-04-15 前置效应检查 (-1 年减半).
 CATEGORIES:BTC,入场
 BEGIN:VALARM
 TRIGGER:-P14D
